@@ -1,10 +1,12 @@
+require('dotenv').config()
+
 const {CONNECTION_STRING} = process.env;
 
-const { Sequelize } = require('sequelize');
+const Sequelize = require('sequelize');
 
-require('dotenv').config();
 
-const sequelize = new Sequelize (process.env.CONNECTION_STRING, {
+
+const sequelize = new Sequelize(CONNECTION_STRING, {
     dialect: 'postgres',
     dialectOptions: {
         ssl:{
@@ -14,6 +16,36 @@ const sequelize = new Sequelize (process.env.CONNECTION_STRING, {
 })
 
 module.exports = {
+    
+    getCountries: (req, res) => {
+        sequelize.query(`SELECT * FROM countries`)
+            .then(dbres => res.status(200).send(dbres[0]))
+            .catch(err => console.log(err)) 
+        },
+    
+        
+    createCity: (req,res) => {
+        const {name, rating, countryId} = req.body
+        sequelize.query(`
+        update cities
+        name = '${name}',
+        rating = '${rating}',
+        countryId = '${countryId}';
+        `)
+        .then(dbRes => res.status(200).send(dbRes[0]))
+        .catch(err => console.log(err))
+    },
+    
+    
+    getCities: (req, res) => {
+        sequelize.query(`SELECT city_id, name, rating FROM cities JOIN `, `SELECT country_id, name FROM countries`)
+        .then(dbres => res.status(200).send(dbres[0]))
+        .catch(err => console.log(err)) 
+    },
+
+
+
+
     seed: (req, res) => {
         sequelize.query(`
             drop table if exists cities;
@@ -26,12 +58,16 @@ module.exports = {
 
            
             CREATE TABLE cities(
-            city_id: SERIAL PRIMARY KEY
-            name: VARCHAR(40)
-            rating: INTEGER
-            country_id: INTEGER 
+            city_id SERIAL PRIMARY KEY,
+            name VARCHAR(40),
+            rating INTEGER,
+            country_id INT REFERENCES,
+            COUNTRIES(country_id);
            );
             
+
+
+
 
             insert into countries (name)
             values ('Afghanistan'),
@@ -233,5 +269,7 @@ module.exports = {
             console.log('DB seeded!')
             res.sendStatus(200)
         }).catch(err => console.log('error seeding DB', err))
-    }
+    },
+
+  
 }
