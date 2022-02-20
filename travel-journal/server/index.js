@@ -17,7 +17,7 @@ app.get('/countries', getCountries)
 // CITIES
 app.post('/cities', createCity)
 app.get('/cities', getCities)
-// app.delete('/cities/:id', deleteCity)
+app.delete('/cities/:id', deleteCity)
 
 
 

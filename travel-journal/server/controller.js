@@ -38,12 +38,17 @@ module.exports = {
     
     
     getCities: (req, res) => {
-        sequelize.query(`SELECT city_id, name, rating FROM cities JOIN `, `SELECT country_id, name FROM countries`)
+        sequelize.query(`SELECT city_id, name, rating, country_id FROM cities JOIN countries ON country_id = country_id`)
         .then(dbres => res.status(200).send(dbres[0]))
         .catch(err => console.log(err)) 
     },
 
-
+    deleteCity: (req, res) => {
+        const {city_id} = req.params
+        sequelize.query(`DELETE '${city_id}' FROM cities`)
+        .then(dbres => res.status(200).send(dbres[0]))
+        .catch(err => console.log(err))
+    },
 
 
     seed: (req, res) => {
